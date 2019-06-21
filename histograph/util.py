@@ -5,4 +5,4 @@ def to_slug(text):
     while '--' in clean_text:
         clean_text = clean_text.replace('--', '-')
     ascii_text = normalize('NFKD', clean_text).encode('utf-8', 'ignore')
-    return str(ascii_text.lower())
+    return ascii_text.lower().decode("utf-8")
