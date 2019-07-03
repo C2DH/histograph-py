@@ -6,6 +6,11 @@ from .error import HistographError
 
 API_PREFIX = 'api/v1'
 
+DEFAULT_DISCOVERY_PARAMETERS = {
+  "nedMethod": "opentapioca", 
+	"entityFilter": "openTapiocaCumulativeScore"
+}
+
 def _get_default_headers(api_key):
   return {
     'Authorization': 'Bearer {}'.format(api_key),
@@ -47,7 +52,10 @@ class HistographApiClient:
     caption,
     content,
     slug = None,
-    mime_type = None):
+    mime_type = None,
+    index_content = False,
+    previous_resource_uuid=None,
+    iiif_url=None):
     '''
     TODO: Add a method to add a multi language resource.
     '''
@@ -58,16 +66,25 @@ class HistographApiClient:
       'slug': slug if slug is not None else to_slug(title),
       'title': { language: title },
       'caption': { language: caption },
-      'content': { language: content },
+      'content': { language: content }
     }
 
     if mime_type is not None:
       payload['mime_type'] = mime_type
 
+    if previous_resource_uuid is not None:
+      payload['previous_resource_uuid'] = previous_resource_uuid
+
+    if index_content is True:
+      payload['index_content'] = True
+
+    if iiif_url is not None:
+      payload['iiif_url'] = iiif_url
+
     return self.__request('/resources', 'POST', payload).get('resource')
 
-  def start_discovery(self):
-    return self.__request('/resources/discovery-processes', 'POST').get('refId')
+  def start_discovery(self, parameters = DEFAULT_DISCOVERY_PARAMETERS):
+    return self.__request('/resources/discovery-processes', 'POST', parameters).get('refId')
 
   def get_discovery_process_logs(self, id):
     return self.__request('/resources/discovery-processes/{}'.format(id), 'GET')
