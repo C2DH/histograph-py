@@ -1,5 +1,6 @@
 from requests import request
 import json
+import urllib
 
 from .util import to_slug
 from .error import HistographError
@@ -38,6 +39,9 @@ class HistographApiClient:
     response = request(method, url, data=json.dumps(payload), headers=_get_default_headers(self.__api_key))
     _handle_error(response)
     return response.json()
+
+  def get_user_details(self):
+    return self.__request('/users/self').get('user', {})
 
   def get_curated_resources(self):
     return self.__request('/resources/curated').get('resources', [])
@@ -88,3 +92,12 @@ class HistographApiClient:
 
   def get_discovery_process_logs(self, id):
     return self.__request('/resources/discovery-processes/{}'.format(id), 'GET')
+
+  def start_pipeline_process(self, name, parameters):
+    return self.__request('/pipelines/processes', 'POST', { 'name': name, 'parameters': parameters }).get('refId')
+
+  def get_pipeline_process_logs(self, id):
+    return self.__request('/pipelines/processes/{}'.format(id), 'GET')
+
+  def update_resource_topic_modelling_scores(self, slug_or_id, scores):
+    return self.__request(urllib.request.quote('/resources/{}/topic-modelling-scores'.format(slug_or_id)), 'PUT', { 'scores': scores })
