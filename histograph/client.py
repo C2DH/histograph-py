@@ -101,3 +101,14 @@ class HistographApiClient:
 
   def update_resource_topic_modelling_scores(self, slug_or_id, scores):
     return self.__request(urllib.request.quote('/resources/{}/topic-modelling-scores'.format(slug_or_id)), 'PUT', { 'scores': scores })
+
+  def update_topic(self, topic_set, topic_index, label = None, keywords = None):
+    payload = {}
+    if label:
+      payload['label'] = label
+    if keywords:
+      payload['keywords'] = keywords
+    if len(payload.keys()) == 0:
+      return
+
+    return self.__request(urllib.request.quote('/topics/{}/{}'.format(topic_set, topic_index)), 'PUT', payload)
