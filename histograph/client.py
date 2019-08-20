@@ -46,6 +46,22 @@ class HistographApiClient:
   def get_curated_resources(self):
     return self.__request('/resources/curated').get('resources', [])
 
+  def create_resource(self, resource, entities = None, entities_locations = None, skip_ner = False):
+    '''
+    Create and POST create resource payload.
+    '''
+    payload = {
+      'resource': resource,
+      'skipNER': skip_ner
+    }
+
+    if entities is not None:
+      payload['entities'] = entities
+    if entities_locations is not None:
+      payload['entitiesLocations'] = entities_locations
+
+    return self.__request('/resources', 'POST', payload).get('resource')
+
   def add_resource(
     self,
     type,
@@ -85,7 +101,11 @@ class HistographApiClient:
     if iiif_url is not None:
       payload['iiif_url'] = iiif_url
 
-    return self.__request('/resources', 'POST', payload).get('resource')
+    resource_payload = {
+      'resource': payload
+    }
+
+    return self.__request('/resources', 'POST', resource_payload).get('resource')
 
   def start_discovery(self, parameters = DEFAULT_DISCOVERY_PARAMETERS):
     return self.__request('/resources/discovery-processes', 'POST', parameters).get('refId')
